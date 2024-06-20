@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Video</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #loading {
+            display: none;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<div class="container mt-5">
+    <h1>Upload Video</h1>
+    <form id="uploadForm" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="video">Select video:</label>
+            <input type="file" class="form-control-file" id="video" name="video" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+    <div id="loading" class="mt-3">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <p>Uploading and processing video...</p>
+    </div>
+</div>
+<script>
+    $('#uploadForm').on('submit', function(event) {
+        event.preventDefault();
+        var formData = new FormData(this);
+        showLoading();
+        $.ajax({
+            url: '{% url "upload" %}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                var taskId = data.task_id;
+                checkTaskStatus(taskId);
+            },
+            error: function(xhr, status, error) {
+                $('#loading').hide();
+                alert('An error occurred: ' + error);
+            }
+        });
+    });
+
+    function showLoading() {
+        document.getElementById('loading').style.display = 'block';
+    }
+
+    function checkTaskStatus(taskId) {
+        $.ajax({
+            url: '{% url "check_task_status" task_id="taskIdPlaceholder" %}'.replace('taskIdPlaceholder', taskId),
+            type: 'GET',
+            success: function(data) {
+                if (data.status == 'SUCCESS') {
+                    window.location.href = '{% url "search" %}';
+                } else if (data.status != 'FAILURE') {
+                    setTimeout(function() {
+                        checkTaskStatus(taskId);
+                    }, 2000);
+                } else {
+                    $('#loading').hide();
+                    alert('Task failed: ' + data.result);
+                }
+            },
+            error: function(xhr, status, error) {
+                $('#loading').hide();
+                alert('An error occurred: ' + error);
+            }
+        });
+    }
+</script>
+</body>
+</html>
