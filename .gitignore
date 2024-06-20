@@ -1,0 +1,18 @@
+# Ignore compiled Python files
+*.pyc
+
+# Ignore the virtual environment directory
+env/
+
+# Ignore IDE-specific files
+.vscode/
+*.idea/
+
+# Ignore the .env file containing sensitive information
+.env
+
+# Ignore log files
+*.log
+
+# Ignore database files
+*.sqlite3
