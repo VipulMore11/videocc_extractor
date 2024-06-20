@@ -7,7 +7,7 @@ from django.conf import settings
 
 @shared_task
 def process_video(video_name):
-    video_path = os.path.join('/downloads', video_name)
+    video_path = os.path.join('/home/ubuntu/downloads', video_name)
     srt_path = os.path.splitext(video_path)[0] + '.srt'
     print(srt_path)
     try:
@@ -25,7 +25,7 @@ def process_video(video_name):
         s3.download_file(settings.AWS_STORAGE_BUCKET_NAME, video_name, video_path)
         print(f"Downloaded video to {video_path}")
         
-        ccextractor_path = '/video_ccextractor/cc_extractor/ccextractorwinfull.exe'
+        ccextractor_path = '/home/ubuntu/video_ccextractor/cc_extractor/ccextractorwinfull.exe'
         print(f"cc Extraction started")
         subprocess.run(
             [ccextractor_path, video_path, '-o', srt_path],
