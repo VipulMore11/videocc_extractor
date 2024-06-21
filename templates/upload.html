@@ -28,55 +28,28 @@
         </div>
         <p>Uploading and processing video...</p>
     </div>
+
+    {% if upload_success %}
+        <div class="mt-4 alert alert-success" role="alert">
+            Upload successful! <a href="{% url 'search' %}" class="alert-link">Click here to search subtitles</a>.
+        </div>
+    {% elif error_message %}
+        <div class="mt-4 alert alert-danger" role="alert">
+            {{ error_message }}
+        </div>
+    {% endif %}
 </div>
+
 <script>
-    $('#uploadForm').on('submit', function(event) {
-        event.preventDefault();
-        var formData = new FormData(this);
-        showLoading();
-        $.ajax({
-            url: '{% url "upload" %}',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(data) {
-                var taskId = data.task_id;
-                checkTaskStatus(taskId);
-            },
-            error: function(xhr, status, error) {
-                $('#loading').hide();
-                alert('An error occurred: ' + error);
-            }
+    $(document).ready(function() {
+        $('#uploadForm').on('submit', function() {
+            $('#loading').show();
         });
     });
-
-    function showLoading() {
-        document.getElementById('loading').style.display = 'block';
-    }
-
-    function checkTaskStatus(taskId) {
-        $.ajax({
-            url: '{% url "check_task_status" task_id="taskIdPlaceholder" %}'.replace('taskIdPlaceholder', taskId),
-            type: 'GET',
-            success: function(data) {
-                if (data.status == 'SUCCESS') {
-                    window.location.href = '{% url "search" %}';
-                } else if (data.status != 'FAILURE') {
-                    setTimeout(function() {
-                        checkTaskStatus(taskId);
-                    }, 2000);
-                } else {
-                    $('#loading').hide();
-                    alert('Task failed: ' + data.result);
-                }
-            },
-            error: function(xhr, status, error) {
-                $('#loading').hide();
-                alert('An error occurred: ' + error);
-            }
-        });
-    }
 </script>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>

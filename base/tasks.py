@@ -2,16 +2,17 @@ from celery import shared_task
 import boto3
 import subprocess
 import os
-import uuid
 from django.conf import settings
 
 @shared_task
-def process_video(video_name):
-    video_path = os.path.join('/home/ubuntu/downloads', video_name)
+def process_video(video_name, upload_uuid):
+    download_dir = 'C:\\Users\\vvm38\\Downloads'  # Change as per your environment
+    ccextractor_path = 'C:\\Users\\vvm38\\OneDrive\\Desktop\\internship\\video_ccextractor\\cc_extractor\\ccextractorwinfull.exe'
+    
+    video_path = os.path.join(download_dir, video_name)
     srt_path = os.path.splitext(video_path)[0] + '.srt'
-    print(srt_path)
+    
     try:
-        # Set up AWS clients
         s3 = boto3.client('s3',
                           aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
                           aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
@@ -21,12 +22,9 @@ def process_video(video_name):
                                   aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
                                   region_name=settings.AWS_S3_REGION_NAME)
         
-        # Download video from S3
         s3.download_file(settings.AWS_STORAGE_BUCKET_NAME, video_name, video_path)
         print(f"Downloaded video to {video_path}")
         
-        ccextractor_path = '/home/ubuntu/video_ccextractor/cc_extractor/ccextractorwinfull.exe'
-        print(f"cc Extraction started")
         subprocess.run(
             [ccextractor_path, video_path, '-o', srt_path],
             check=True,
@@ -35,36 +33,33 @@ def process_video(video_name):
         )
         print(f"Subtitles extracted to {srt_path}")
         
-        # Read and parse subtitles
-        with open(srt_path, 'r') as f:
+        with open(srt_path, 'r', encoding='utf-8') as f:
             subtitles = f.read().strip().split('\n\n')
         
         table = dynamodb.Table(settings.DYNAMO_TABLE_NAME)
         
-        # Store subtitles in DynamoDB
         for subtitle in subtitles:
             parts = subtitle.split('\n')
             if len(parts) >= 3:
                 timestamp = parts[1].split(' --> ')[0]
                 subtitle_text = ' '.join(parts[2:])
                 table.put_item(Item={
+                    'uuid': upload_uuid,
                     'video_name': video_name,
                     'timestamp': timestamp,
                     'subtitle_text': subtitle_text
                 })
         
         print("Subtitles stored in DynamoDB")
-    
     except subprocess.CalledProcessError as e:
         print(f"Error extracting subtitles: {e}")
-        print(f"Subprocess output: {e.stdout}")
-        print(f"Subprocess error output: {e.stderr}")
+        print(f"Subprocess output: {e.stdout.decode()}")
+        print(f"Subprocess error output: {e.stderr.decode()}")
     except boto3.exceptions.Boto3Error as e:
         print(f"AWS error: {e}")
     except Exception as e:
         print(f"Unexpected error: {e}")
     finally:
-        # Clean up temporary files
         if os.path.exists(video_path):
             os.remove(video_path)
             print(f"Removed temporary video file {video_path}")
