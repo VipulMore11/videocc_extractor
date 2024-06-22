@@ -6,10 +6,10 @@ from django.conf import settings
 
 @shared_task
 def process_video(video_name, upload_uuid):
-    download_dir = os.path.join('/home/ubuntu/downloads', video_name)
-    ccextractor_path = '/home/ubuntu/video_ccextractor/cc_extractor/ccextractorwinfull.exe'
+    # download_dir = os.path.join('/home/ubuntu/downloads', video_name)
+    ccextractor_path = '/home/ubuntu/videocc_extractor/run_ccextractor.sh'
     
-    video_path = os.path.join(download_dir, video_name)
+    video_path = os.path.join('/home/ubuntu/downloads', video_name)
     srt_path = os.path.splitext(video_path)[0] + '.srt'
     
     try:
