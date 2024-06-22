@@ -6,12 +6,12 @@ from django.conf import settings
 
 @shared_task
 def process_video(video_name, upload_uuid):
-    # download_dir = os.path.join('/home/ubuntu/downloads', video_name)
     ccextractor_path = '/home/ubuntu/videocc_extractor/run_ccextractor.sh'
     
     video_path = os.path.join('/home/ubuntu/downloads', video_name)
+    print(video_path)
     srt_path = os.path.splitext(video_path)[0] + '.srt'
-    
+    print(srt_path)
     try:
         s3 = boto3.client('s3',
                           aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
@@ -21,7 +21,7 @@ def process_video(video_name, upload_uuid):
                                   aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
                                   aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
                                   region_name=settings.AWS_S3_REGION_NAME)
-        
+        print("Download started")
         s3.download_file(settings.AWS_STORAGE_BUCKET_NAME, video_name, video_path)
         print(f"Downloaded video to {video_path}")
         
