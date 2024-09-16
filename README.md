@@ -1,16 +1,18 @@
-VideoCC Extractor
+# VideoCC Extractor
+
 A Python-based tool for extracting closed captions from video files. This project allows users to extract subtitles or closed captions embedded in video files using various techniques.
 
-Features
-Extracts subtitles/closed captions from video files.
-Supports multiple video formats.
-User-friendly interface for selecting video files and extracting captions.
-Installation
-Clone the repository:
+## Features
 
-bash
-Copy code
-git clone https://github.com/VipulMore11/videocc_extractor.git
+- Extracts subtitles/closed captions from video files.
+- Supports multiple video formats.
+- User-friendly interface for selecting video files and extracting captions.
+
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/VipulMore11/videocc_extractor.git
 Navigate to the project directory:
 
 bash
