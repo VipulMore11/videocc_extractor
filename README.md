@@ -45,6 +45,12 @@ A Python-based tool for extracting closed captions from video files. This projec
     pip install -r requirements.txt
     ```
 
+5. **Run the Redis server** (if not already running):
+    ```bash
+    redis-server
+    ```
+    Ensure that Redis is properly installed on your system. You can follow the [official Redis installation guide](https://redis.io/download) if needed.
+
 ## Usage
 
 1. Run the application:
